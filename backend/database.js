@@ -9,7 +9,10 @@ let client = null;
 let db = null;
 
 async function initializeDatabase() {
-  client = new MongoClient(MONGO_URI);
+  client = new MongoClient(MONGO_URI, {
+    serverSelectionTimeoutMS: 10000,
+    connectTimeoutMS: 10000,
+  });
   
   try {
     await client.connect();
@@ -23,7 +26,7 @@ async function initializeDatabase() {
     console.log('MongoDB database connected successfully');
     return db;
   } catch (err) {
-    console.error('MongoDB connection error:', err);
+    console.error('MongoDB connection error:', err.message);
     throw err;
   }
 }
