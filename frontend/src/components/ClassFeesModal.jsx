@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../api'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
@@ -18,7 +18,7 @@ export default function ClassFeesModal({ onClose }) {
   const fetchStudents = async () => {
     setLoading(true)
     try {
-      const res = await axios.get('/api/students')
+      const res = await api.get('/api/students')
       setStudents(res.data)
     } catch (error) {
       console.error('Error fetching students:', error)

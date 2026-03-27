@@ -1,7 +1,9 @@
 const { MongoClient } = require('mongodb');
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://sifuna:fd6R1ePDaP5RuumY@cluster0.rpsyadu.mongodb.net/?appName=Cluster0';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://sifuna:fd6R1ePDaP5RuumY@cluster0.rpsyadu.mongodb.net/?appName=Cluster0&retryWrites=true&w=majority';
 const DB_NAME = process.env.DB_NAME || 'school_management';
+
+console.log('MongoDB URI:', MONGO_URI ? 'Set' : 'Not set');
 
 let client = null;
 let db = null;

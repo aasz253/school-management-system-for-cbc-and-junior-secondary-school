@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../api'
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -16,7 +16,7 @@ export default function Dashboard() {
 
   const fetchStats = async () => {
     try {
-      const res = await axios.get('/api/dashboard/stats')
+      const res = await api.get('/api/dashboard/stats')
       setStats(res.data)
     } catch (error) {
       console.error('Error fetching stats:', error)

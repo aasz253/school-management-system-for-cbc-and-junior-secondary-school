@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../api'
 import { Link } from 'react-router-dom'
 
 export default function Login({ onLogin }) {
@@ -18,7 +18,7 @@ export default function Login({ onLogin }) {
     setLoading(true)
 
     try {
-      const res = await axios.post('/api/auth/login', { username, password })
+      const res = await api.post('/api/auth/login', { username, password })
       if (res.data.success) {
         localStorage.setItem('user', JSON.stringify(res.data.user))
         onLogin()
@@ -36,7 +36,7 @@ export default function Login({ onLogin }) {
     setResetLoading(true)
 
     try {
-      const res = await axios.post('/api/auth/reset-password', { username: resetUsername })
+      const res = await api.post('/api/auth/reset-password', { username: resetUsername })
       if (res.data.success) {
         setResetMessage('Password has been reset to: ' + res.data.newPassword)
       }

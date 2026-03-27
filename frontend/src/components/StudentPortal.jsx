@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../api'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
@@ -27,7 +27,7 @@ export default function StudentPortal({ student, onLogout }) {
 
   const fetchPortalData = async () => {
     try {
-      const res = await axios.get(`/api/student/portal/${student.id}`)
+      const res = await api.get(`/api/student/portal/${student.id}`)
       setPortalData(res.data)
       if (res.data.terms.length > 0) {
         setSelectedTerm(res.data.terms[0])

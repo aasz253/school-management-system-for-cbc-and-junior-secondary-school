@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import axios from 'axios'
+import api from '../api'
 import { Link } from 'react-router-dom'
 
 export default function StudentLogin({ onLogin }) {
@@ -14,7 +14,7 @@ export default function StudentLogin({ onLogin }) {
     setLoading(true)
 
     try {
-      const res = await axios.post('/api/auth/student-login', { admission_no, password })
+      const res = await api.post('/api/auth/student-login', { admission_no, password })
       if (res.data.success) {
         localStorage.setItem('studentUser', JSON.stringify(res.data.user))
         onLogin(res.data.user)

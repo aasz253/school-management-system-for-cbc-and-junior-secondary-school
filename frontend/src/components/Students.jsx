@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../api'
 import StudentForm from './StudentForm'
 import EditStudentModal from './EditStudentModal'
 import ClassFeesModal from './ClassFeesModal'
@@ -23,7 +23,7 @@ export default function Students() {
       const url = searchQuery 
         ? `/api/students/search?q=${encodeURIComponent(searchQuery)}`
         : '/api/students'
-      const res = await axios.get(url)
+      const res = await api.get(url)
       setStudents(res.data)
     } catch (error) {
       console.error('Error fetching students:', error)
@@ -34,7 +34,7 @@ export default function Students() {
 
   const handleAddStudent = async (studentData) => {
     try {
-      await axios.post('/api/students', studentData)
+      await api.post('/api/students', studentData)
       fetchStudents()
       setShowForm(false)
     } catch (error) {
@@ -46,7 +46,7 @@ export default function Students() {
 
   const handleUpdateStudent = async (id, studentData) => {
     try {
-      await axios.put(`/api/students/${id}`, studentData)
+      await api.put(`/api/students/${id}`, studentData)
       fetchStudents()
       setEditingStudent(null)
     } catch (error) {
@@ -57,7 +57,7 @@ export default function Students() {
 
   const handleDeleteStudent = async (id) => {
     try {
-      await axios.delete(`/api/students/${id}`)
+      await api.delete(`/api/students/${id}`)
       fetchStudents()
       setDeleteConfirm(null)
     } catch (error) {

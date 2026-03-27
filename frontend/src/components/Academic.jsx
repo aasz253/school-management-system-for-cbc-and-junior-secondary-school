@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../api'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
@@ -42,7 +42,7 @@ export default function Academic() {
 
   const fetchStudents = async () => {
     try {
-      const res = await axios.get('/api/students')
+      const res = await api.get('/api/students')
       setStudents(res.data)
     } catch (error) {
       console.error('Error fetching students:', error)
@@ -53,7 +53,7 @@ export default function Academic() {
 
   const fetchExistingScores = async () => {
     try {
-      const res = await axios.get('/api/scores')
+      const res = await api.get('/api/scores')
       setExistingScores(res.data)
     } catch (error) {
       console.error('Error fetching scores:', error)
@@ -95,9 +95,9 @@ export default function Academic() {
             )
             
             if (existing) {
-              await axios.put(`/api/scores/${existing.id}`, { score })
+              await api.put(`/api/scores/${existing.id}`, { score })
             } else {
-              await axios.post('/api/scores', {
+              await api.post('/api/scores', {
                 student_id: student.id,
                 subject: subject,
                 score: score,
