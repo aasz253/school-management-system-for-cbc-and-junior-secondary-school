@@ -11,6 +11,7 @@ import Timetable from './components/Timetable'
 import Messages from './components/Messages'
 import News from './components/News'
 import Sports from './components/Sports'
+import Assignments from './components/Assignments'
 import Finance from './components/Finance'
 import StudentPortal from './components/StudentPortal'
 
@@ -113,6 +114,9 @@ function App() {
         )}
         {isAuthenticated && !showWelcome && (
           <Route path="/sports" element={<Layout onLogout={handleLogout}><Sports /></Layout>} />
+        )}
+        {isAuthenticated && !showWelcome && (
+          <Route path="/assignments" element={<Layout onLogout={handleLogout}><Assignments /></Layout>} />
         )}
         {isAuthenticated && !showWelcome && (
           <Route path="/finance" element={<Layout onLogout={handleLogout}><Finance /></Layout>} />

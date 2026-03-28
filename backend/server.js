@@ -912,6 +912,95 @@ app.delete('/api/sports/:id', async (req, res) => {
   res.json({ message: 'Sport deleted successfully' });
 });
 
+app.get('/api/assignments', async (req, res) => {
+  const { grade } = req.query;
+  let query = {};
+  if (grade) query.grade = grade;
+  
+  const assignments = await find('assignments', query, { created_at: -1 });
+  const formatted = assignments.map(a => ({ ...a, id: a._id, _id: undefined }));
+  res.json(formatted);
+});
+
+app.get('/api/assignments/:id', async (req, res) => {
+  const assignment = await findOne('assignments', { _id: new ObjectId(req.params.id) });
+  if (!assignment) {
+    return res.status(404).json({ message: 'Assignment not found' });
+  }
+  const formatted = { ...assignment, id: assignment._id, _id: undefined };
+  res.json(formatted);
+});
+
+app.post('/api/assignments', async (req, res) => {
+  const { title, description, grade, subject, due_date, file_data, file_name, is_published } = req.body;
+  
+  if (!title || !grade || !subject) {
+    return res.status(400).json({ message: 'Title, grade, and subject are required' });
+  }
+
+  try {
+    const result = await insertOne('assignments', {
+      title,
+      description: description || '',
+      grade,
+      subject,
+      due_date: due_date || null,
+      file_data: file_data || null,
+      file_name: file_name || null,
+      is_published: is_published !== false,
+      created_at: new Date()
+    });
+    
+    const newAssignment = await findOne('assignments', { _id: result.lastInsertRowid });
+    const formatted = { ...newAssignment, id: newAssignment._id, _id: undefined };
+    res.status(201).json(formatted);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.put('/api/assignments/:id', async (req, res) => {
+  const { title, description, grade, subject, due_date, file_data, file_name, is_published } = req.body;
+  
+  const existing = await findOne('assignments', { _id: new ObjectId(req.params.id) });
+  if (!existing) {
+    return res.status(404).json({ message: 'Assignment not found' });
+  }
+
+  try {
+    await updateOne('assignments', 
+      { _id: new ObjectId(req.params.id) },
+      { $set: {
+        title: title || existing.title,
+        description: description !== undefined ? description : existing.description,
+        grade: grade || existing.grade,
+        subject: subject || existing.subject,
+        due_date: due_date !== undefined ? due_date : existing.due_date,
+        file_data: file_data !== undefined ? file_data : existing.file_data,
+        file_name: file_name !== undefined ? file_name : existing.file_name,
+        is_published: is_published !== undefined ? is_published : existing.is_published,
+        updated_at: new Date()
+      }}
+    );
+
+    const updated = await findOne('assignments', { _id: new ObjectId(req.params.id) });
+    const formatted = { ...updated, id: updated._id, _id: undefined };
+    res.json(formatted);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.delete('/api/assignments/:id', async (req, res) => {
+  const existing = await findOne('assignments', { _id: new ObjectId(req.params.id) });
+  if (!existing) {
+    return res.status(404).json({ message: 'Assignment not found' });
+  }
+
+  await deleteOne('assignments', { _id: new ObjectId(req.params.id) });
+  res.json({ message: 'Assignment deleted successfully' });
+});
+
 initializeDatabase()
   .then(() => {
     app.listen(PORT, '0.0.0.0', () => {

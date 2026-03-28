@@ -24,6 +24,7 @@ async function initializeDatabase() {
     await db.collection('exams').createIndex({ grade: 1, term: 1, year: 1 });
     await db.collection('timetable').createIndex({ grade: 1 }, { unique: true });
     await db.collection('messages').createIndex({ student_id: 1, created_at: 1 });
+    await db.collection('assignments').createIndex({ grade: 1, created_at: -1 });
     
     console.log('MongoDB database connected successfully');
     return db;
