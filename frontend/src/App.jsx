@@ -7,6 +7,10 @@ import Layout from './components/Layout'
 import Dashboard from './components/Dashboard'
 import Students from './components/Students'
 import Academic from './components/Academic'
+import Timetable from './components/Timetable'
+import Messages from './components/Messages'
+import News from './components/News'
+import Sports from './components/Sports'
 import Finance from './components/Finance'
 import StudentPortal from './components/StudentPortal'
 
@@ -97,6 +101,18 @@ function App() {
         )}
         {isAuthenticated && !showWelcome && (
           <Route path="/academic" element={<Layout onLogout={handleLogout}><Academic /></Layout>} />
+        )}
+        {isAuthenticated && !showWelcome && (
+          <Route path="/timetable" element={<Layout onLogout={handleLogout}><Timetable /></Layout>} />
+        )}
+        {isAuthenticated && !showWelcome && (
+          <Route path="/messages" element={<Layout onLogout={handleLogout}><Messages /></Layout>} />
+        )}
+        {isAuthenticated && !showWelcome && (
+          <Route path="/news" element={<Layout onLogout={handleLogout}><News /></Layout>} />
+        )}
+        {isAuthenticated && !showWelcome && (
+          <Route path="/sports" element={<Layout onLogout={handleLogout}><Sports /></Layout>} />
         )}
         {isAuthenticated && !showWelcome && (
           <Route path="/finance" element={<Layout onLogout={handleLogout}><Finance /></Layout>} />

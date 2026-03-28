@@ -3,7 +3,7 @@ const cors = require('cors');
 const { initializeDatabase, findOne, find, insertOne, updateOne, deleteOne, deleteMany, countDocuments, aggregate } = require('./database');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 5000;
 
 app.use(cors({
   origin: '*',
@@ -579,6 +579,337 @@ app.get('/api/student/portal/:id', async (req, res) => {
     position: studentPosition,
     performance
   });
+});
+
+app.get('/api/timetable', async (req, res) => {
+  const { grade } = req.query;
+  let query = {};
+  if (grade) query.grade = grade;
+  
+  const timetables = await find('timetable', query);
+  const formatted = timetables.map(t => ({ ...t, id: t._id, _id: undefined }));
+  res.json(formatted);
+});
+
+app.get('/api/timetable/:grade', async (req, res) => {
+  const { grade } = req.params;
+  
+  const timetable = await findOne('timetable', { grade });
+  if (!timetable) {
+    return res.json({ grade, schedule: {} });
+  }
+  const formatted = { ...timetable, id: timetable._id, _id: undefined };
+  res.json(formatted);
+});
+
+app.post('/api/timetable', async (req, res) => {
+  const { grade, schedule } = req.body;
+  
+  if (!grade || !schedule) {
+    return res.status(400).json({ message: 'Grade and schedule are required' });
+  }
+
+  try {
+    const existing = await findOne('timetable', { grade });
+    
+    if (existing) {
+      const db = require('./database').getDb();
+      await db.collection('timetable').updateOne(
+        { grade },
+        { $set: { schedule, updated_at: new Date() } }
+      );
+      const updated = await findOne('timetable', { grade });
+      const formatted = { ...updated, id: updated._id, _id: undefined };
+      return res.json(formatted);
+    }
+    
+    const result = await insertOne('timetable', {
+      grade,
+      schedule,
+      created_at: new Date(),
+      updated_at: new Date()
+    });
+    
+    const newTimetable = await findOne('timetable', { _id: result.lastInsertRowid });
+    if (!newTimetable) {
+      return res.status(500).json({ message: 'Failed to retrieve inserted timetable' });
+    }
+    const formatted = { ...newTimetable, id: newTimetable._id, _id: undefined };
+    res.status(201).json(formatted);
+  } catch (error) {
+    console.error('Timetable save error:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.delete('/api/timetable/:id', async (req, res) => {
+  const { ObjectId } = require('mongodb');
+  const existing = await findOne('timetable', { _id: new ObjectId(req.params.id) });
+  if (!existing) {
+    return res.status(404).json({ message: 'Timetable not found' });
+  }
+
+  await deleteOne('timetable', { _id: new ObjectId(req.params.id) });
+  res.json({ message: 'Timetable deleted successfully' });
+});
+
+app.get('/api/messages', async (req, res) => {
+  const { studentId } = req.query;
+  let query = {};
+  if (studentId) {
+    query = { student_id: new ObjectId(studentId) };
+  }
+  
+  const messages = await aggregate('messages', [
+    { $match: query },
+    { $lookup: { from: 'students', localField: 'student_id', foreignField: '_id', as: 'student' } },
+    { $unwind: { path: '$student', preserveNullAndEmptyArrays: true } },
+    { $sort: { created_at: 1 } }
+  ]);
+  
+  const grouped = {};
+  messages.forEach(m => {
+    const sid = m.student_id.toString();
+    if (!grouped[sid]) {
+      grouped[sid] = {
+        studentId: sid,
+        studentName: m.student?.full_name || 'Unknown',
+        admissionNo: m.student?.admission_no || '',
+        messages: []
+      };
+    }
+    grouped[sid].messages.push({
+      id: m._id,
+      text: m.text,
+      sender: m.sender,
+      created_at: m.created_at
+    });
+  });
+  
+  res.json(Object.values(grouped));
+});
+
+app.get('/api/messages/:studentId', async (req, res) => {
+  const { studentId } = req.params;
+  
+  const messages = await aggregate('messages', [
+    { $match: { student_id: new ObjectId(studentId) } },
+    { $sort: { created_at: 1 } }
+  ]);
+  
+  const student = await findOne('students', { _id: new ObjectId(studentId) });
+  
+  res.json({
+    student: student ? { id: student._id, full_name: student.full_name, admission_no: student.admission_no, grade: student.grade } : null,
+    messages: messages.map(m => ({
+      id: m._id,
+      text: m.text,
+      sender: m.sender,
+      created_at: m.created_at
+    }))
+  });
+});
+
+app.post('/api/messages', async (req, res) => {
+  const { student_id, text, sender } = req.body;
+  
+  if (!student_id || !text || !sender) {
+    return res.status(400).json({ message: 'student_id, text, and sender are required' });
+  }
+
+  try {
+    const result = await insertOne('messages', {
+      student_id: new ObjectId(student_id),
+      text,
+      sender,
+      is_read: false,
+      created_at: new Date()
+    });
+    
+    const newMessage = await findOne('messages', { _id: result.lastInsertRowid });
+    const formatted = { ...newMessage, id: newMessage._id, _id: undefined };
+    res.status(201).json(formatted);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.put('/api/messages/read/:studentId', async (req, res) => {
+  const { studentId } = req.params;
+  
+  const db = require('./database').getDb();
+  await db.collection('messages').updateMany(
+    { student_id: new ObjectId(studentId), sender: 'student', is_read: false },
+    { $set: { is_read: true } }
+  );
+  
+  res.json({ message: 'Messages marked as read' });
+});
+
+app.get('/api/news', async (req, res) => {
+  const news = await find('news', {}, { created_at: -1 });
+  const formatted = news.map(n => ({ ...n, id: n._id, _id: undefined }));
+  res.json(formatted);
+});
+
+app.get('/api/news/:id', async (req, res) => {
+  const newsItem = await findOne('news', { _id: new ObjectId(req.params.id) });
+  if (!newsItem) {
+    return res.status(404).json({ message: 'News not found' });
+  }
+  const formatted = { ...newsItem, id: newsItem._id, _id: undefined };
+  res.json(formatted);
+});
+
+app.post('/api/news', async (req, res) => {
+  const { title, content, event_date, event_time, media_type, media_data, is_published } = req.body;
+  
+  if (!title || !content) {
+    return res.status(400).json({ message: 'Title and content are required' });
+  }
+
+  try {
+    const result = await insertOne('news', {
+      title,
+      content,
+      event_date: event_date || null,
+      event_time: event_time || null,
+      media_type: media_type || null,
+      media_data: media_data || null,
+      is_published: is_published !== false,
+      created_at: new Date()
+    });
+    
+    const newNews = await findOne('news', { _id: result.lastInsertRowid });
+    const formatted = { ...newNews, id: newNews._id, _id: undefined };
+    res.status(201).json(formatted);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.put('/api/news/:id', async (req, res) => {
+  const { title, content, event_date, event_time, media_type, media_data, is_published } = req.body;
+  
+  const existing = await findOne('news', { _id: new ObjectId(req.params.id) });
+  if (!existing) {
+    return res.status(404).json({ message: 'News not found' });
+  }
+
+  try {
+    await updateOne('news', 
+      { _id: new ObjectId(req.params.id) },
+      { $set: {
+        title: title || existing.title,
+        content: content || existing.content,
+        event_date: event_date !== undefined ? event_date : existing.event_date,
+        event_time: event_time !== undefined ? event_time : existing.event_time,
+        media_type: media_type !== undefined ? media_type : existing.media_type,
+        media_data: media_data !== undefined ? media_data : existing.media_data,
+        is_published: is_published !== undefined ? is_published : existing.is_published,
+        updated_at: new Date()
+      }}
+    );
+
+    const updated = await findOne('news', { _id: new ObjectId(req.params.id) });
+    const formatted = { ...updated, id: updated._id, _id: undefined };
+    res.json(formatted);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.delete('/api/news/:id', async (req, res) => {
+  const existing = await findOne('news', { _id: new ObjectId(req.params.id) });
+  if (!existing) {
+    return res.status(404).json({ message: 'News not found' });
+  }
+
+  await deleteOne('news', { _id: new ObjectId(req.params.id) });
+  res.json({ message: 'News deleted successfully' });
+});
+
+app.get('/api/sports', async (req, res) => {
+  const sports = await find('sports', {}, { created_at: -1 });
+  const formatted = sports.map(s => ({ ...s, id: s._id, _id: undefined }));
+  res.json(formatted);
+});
+
+app.get('/api/sports/:id', async (req, res) => {
+  const sport = await findOne('sports', { _id: new ObjectId(req.params.id) });
+  if (!sport) {
+    return res.status(404).json({ message: 'Sport not found' });
+  }
+  const formatted = { ...sport, id: sport._id, _id: undefined };
+  res.json(formatted);
+});
+
+app.post('/api/sports', async (req, res) => {
+  const { title, description, activity_type, event_date, location, image_data, is_published } = req.body;
+  
+  if (!title || !description) {
+    return res.status(400).json({ message: 'Title and description are required' });
+  }
+
+  try {
+    const result = await insertOne('sports', {
+      title,
+      description,
+      activity_type: activity_type || 'General',
+      event_date: event_date || null,
+      location: location || null,
+      image_data: image_data || null,
+      is_published: is_published !== false,
+      created_at: new Date()
+    });
+    
+    const newSport = await findOne('sports', { _id: result.lastInsertRowid });
+    const formatted = { ...newSport, id: newSport._id, _id: undefined };
+    res.status(201).json(formatted);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.put('/api/sports/:id', async (req, res) => {
+  const { title, description, activity_type, event_date, location, image_data, is_published } = req.body;
+  
+  const existing = await findOne('sports', { _id: new ObjectId(req.params.id) });
+  if (!existing) {
+    return res.status(404).json({ message: 'Sport not found' });
+  }
+
+  try {
+    await updateOne('sports', 
+      { _id: new ObjectId(req.params.id) },
+      { $set: {
+        title: title || existing.title,
+        description: description || existing.description,
+        activity_type: activity_type !== undefined ? activity_type : existing.activity_type,
+        event_date: event_date !== undefined ? event_date : existing.event_date,
+        location: location !== undefined ? location : existing.location,
+        image_data: image_data !== undefined ? image_data : existing.image_data,
+        is_published: is_published !== undefined ? is_published : existing.is_published,
+        updated_at: new Date()
+      }}
+    );
+
+    const updated = await findOne('sports', { _id: new ObjectId(req.params.id) });
+    const formatted = { ...updated, id: updated._id, _id: undefined };
+    res.json(formatted);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.delete('/api/sports/:id', async (req, res) => {
+  const existing = await findOne('sports', { _id: new ObjectId(req.params.id) });
+  if (!existing) {
+    return res.status(404).json({ message: 'Sport not found' });
+  }
+
+  await deleteOne('sports', { _id: new ObjectId(req.params.id) });
+  res.json({ message: 'Sport deleted successfully' });
 });
 
 initializeDatabase()
