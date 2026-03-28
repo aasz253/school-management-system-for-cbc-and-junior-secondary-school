@@ -9,8 +9,13 @@ export default function Dashboard() {
     financial: null
   })
   const [loading, setLoading] = useState(true)
+  const [schoolInfo, setSchoolInfo] = useState(null)
 
   useEffect(() => {
+    const saved = localStorage.getItem('schoolInfo')
+    if (saved) {
+      setSchoolInfo(JSON.parse(saved))
+    }
     fetchStats()
   }, [])
 
@@ -43,12 +48,39 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
-          <p className="text-gray-500">Overview of your school</p>
+      {schoolInfo && (
+        <div className="bg-gradient-to-r from-kenyan-blue to-blue-800 rounded-xl shadow-lg p-6 text-white">
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            {schoolInfo.badge && (
+              <img src={schoolInfo.badge} alt="School Badge" className="w-24 h-24 rounded-full border-4 border-white/30 object-cover" />
+            )}
+            <div className="flex-1 text-center md:text-left">
+              <h1 className="text-3xl font-bold">CBC Smart School</h1>
+              {schoolInfo.motto && <p className="text-blue-200 mt-1 italic">"{schoolInfo.motto}"</p>}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+              {schoolInfo.headmaster && (
+                <div className="bg-white/10 rounded-lg p-3">
+                  <p className="text-xs text-blue-200">Head Teacher</p>
+                  <p className="font-semibold">{schoolInfo.headmaster}</p>
+                </div>
+              )}
+              {schoolInfo.hod && (
+                <div className="bg-white/10 rounded-lg p-3">
+                  <p className="text-xs text-blue-200">HOD</p>
+                  <p className="font-semibold">{schoolInfo.hod}</p>
+                </div>
+              )}
+              {schoolInfo.adminName && (
+                <div className="bg-white/10 rounded-lg p-3">
+                  <p className="text-xs text-blue-200">Administrator</p>
+                  <p className="font-semibold">{schoolInfo.adminName}</p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="card hover:shadow-md transition-shadow">
