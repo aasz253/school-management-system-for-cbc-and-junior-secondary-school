@@ -216,6 +216,7 @@ app.get('/api/scores', async (req, res) => {
   ]);
   const formatted = scores.map(s => ({
     ...s,
+    student_id: s.student_id.toString(),  // Convert ObjectId to string
     full_name: s.student.full_name,
     admission_no: s.student.admission_no,
     grade: s.student.grade,
@@ -515,6 +516,9 @@ app.get('/api/student/portal/:id', async (req, res) => {
     { $sort: { year: -1, term: -1 } }
   ]);
   
+  console.log('Scores found for student:', scores.length);
+  console.log('Sample score:', scores[0]);
+  
   const subjects = ['English', 'Kiswahili', 'Mathematics', 'Science', 'Social Studies', 'Religious Education', 'Creative Arts', 'Physical & Health Education', 'Agriculture', 'Life Skills'];
   
   const studentScoresByTerm = {};
@@ -533,6 +537,9 @@ app.get('/api/student/portal/:id', async (req, res) => {
     if (yearA !== yearB) return parseInt(yearB) - parseInt(yearA);
     return termB.localeCompare(termA);
   });
+  
+  console.log('Terms calculated:', terms);
+  console.log('studentScoresByTerm:', JSON.stringify(studentScoresByTerm));
   
   let totalScore = 0;
   let totalSubjects = 0;
@@ -682,6 +689,7 @@ app.delete('/api/timetable/:id', async (req, res) => {
 });
 
 app.get('/api/messages', async (req, res) => {
+  const { ObjectId } = require('mongodb');
   const { studentId } = req.query;
   let query = {};
   if (studentId) {
@@ -741,6 +749,8 @@ app.get('/api/messages/:studentId', async (req, res) => {
 app.post('/api/messages', async (req, res) => {
   const { student_id, text, sender } = req.body;
   
+  console.log('POST /api/messages received:', { student_id, text, sender });
+  
   if (!student_id || !text || !sender) {
     return res.status(400).json({ message: 'student_id, text, and sender are required' });
   }
@@ -755,9 +765,11 @@ app.post('/api/messages', async (req, res) => {
     });
     
     const newMessage = await findOne('messages', { _id: result.lastInsertRowid });
+    console.log('Message saved:', newMessage);
     const formatted = { ...newMessage, id: newMessage._id, _id: undefined };
     res.status(201).json(formatted);
   } catch (error) {
+    console.error('Error saving message:', error);
     res.status(500).json({ message: error.message });
   }
 });
@@ -1029,6 +1041,87 @@ app.delete('/api/assignments/:id', async (req, res) => {
   res.json({ message: 'Assignment deleted successfully' });
 });
 
+// ==================== NOTIFICATIONS API ====================
+
+// Get notifications for a user
+app.get('/api/notifications', async (req, res) => {
+  const { userId, role } = req.query;
+  let query = {};
+  
+  if (role === 'student' && userId) {
+    query = { $or: [{ recipientId: userId }, { type: 'all' }] };
+  }
+  
+  const notifications = await find('notifications', query, { created_at: -1 });
+  const formatted = notifications.map(n => ({ ...n, id: n._id, _id: undefined }));
+  res.json(formatted);
+});
+
+// Create a notification
+app.post('/api/notifications', async (req, res) => {
+  const { title, message, type, recipientId, senderId } = req.body;
+  
+  if (!title) {
+    return res.status(400).json({ message: 'Title is required' });
+  }
+  
+  try {
+    const result = await insertOne('notifications', {
+      title,
+      message: message || '',
+      type: type || 'info',
+      recipientId: recipientId || null,
+      senderId: senderId || null,
+      read: false,
+      created_at: new Date()
+    });
+    
+    const notification = await findOne('notifications', { _id: result.lastInsertRowid });
+    res.status(201).json({ ...notification, id: notification._id, _id: undefined });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Mark notification as read
+app.put('/api/notifications/:id/read', async (req, res) => {
+  const { ObjectId } = require('mongodb');
+  
+  try {
+    await updateOne('notifications', 
+      { _id: new ObjectId(req.params.id) },
+      { $set: { read: true } }
+    );
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Mark all notifications as read
+app.put('/api/notifications/read-all', async (req, res) => {
+  const { userId } = req.body;
+  
+  try {
+    await updateMany('notifications',
+      { recipientId: userId, read: false },
+      { $set: { read: true } }
+    );
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get unread notification count
+app.get('/api/notifications/count', async (req, res) => {
+  const { userId } = req.query;
+  
+  const count = await countDocuments('notifications', { recipientId: userId, read: false });
+  res.json({ count });
+});
+
+// ==================== START SERVER ====================
 initializeDatabase()
   .then(() => {
     app.listen(PORT, '0.0.0.0', () => {

@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react'
 import api from '../api'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts'
+
+const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316']
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -129,13 +132,41 @@ export default function Dashboard() {
       {stats.gradeStats.length > 0 && (
         <div className="card">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">Students per Grade</h3>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            {stats.gradeStats.map((grade) => (
-              <div key={grade.grade} className="bg-gray-50 rounded-lg p-4 text-center">
-                <p className="text-sm text-gray-500">Grade {grade.grade}</p>
-                <p className="text-xl font-bold text-kenyan-blue">{grade.count}</p>
-              </div>
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Bar Chart */}
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={stats.gradeStats}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="grade" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="count" fill="#3B82F6" name="Students" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            {/* Pie Chart */}
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={stats.gradeStats}
+                    dataKey="count"
+                    nameKey="grade"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={80}
+                    label
+                  >
+                    {stats.gradeStats.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
       )}

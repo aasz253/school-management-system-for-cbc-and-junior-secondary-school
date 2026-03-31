@@ -8,6 +8,9 @@ export default function Messages() {
   const [newMessage, setNewMessage] = useState('')
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState([])
+  const [searching, setSearching] = useState(false)
   const messagesEndRef = useRef(null)
 
   useEffect(() => {
@@ -28,6 +31,42 @@ export default function Messages() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
+  const searchStudents = async (query) => {
+    if (!query.trim()) {
+      setSearchResults([])
+      return
+    }
+    setSearching(true)
+    try {
+      const res = await api.get(`/api/students/search?q=${encodeURIComponent(query)}`)
+      setSearchResults(res.data)
+    } catch (error) {
+      console.error('Error searching students:', error)
+    } finally {
+      setSearching(false)
+    }
+  }
+
+  const startConversation = async (student) => {
+    // Check if conversation already exists
+    const existing = conversations.find(c => c.studentId === student.id)
+    if (existing) {
+      setSelectedConversation(existing)
+    } else {
+      // Create new conversation
+      const newConv = {
+        studentId: student.id,
+        studentName: student.full_name,
+        admissionNo: student.admission_no,
+        messages: []
+      }
+      setConversations(prev => [newConv, ...prev])
+      setSelectedConversation(newConv)
+    }
+    setSearchQuery('')
+    setSearchResults([])
+  }
+
   const fetchConversations = async () => {
     try {
       const res = await api.get('/api/messages')
@@ -41,9 +80,12 @@ export default function Messages() {
 
   const fetchMessages = async (studentId) => {
     try {
-      const res = await api.get(`/api/messages/${studentId}`)
-      setMessages(res.data.messages)
-      await api.put(`/api/messages/read/${studentId}`)
+      const id = String(studentId)
+      console.log('Fetching messages for student ID:', id)
+      const res = await api.get(`/api/messages/${id}`)
+      console.log('Messages response:', res.data)
+      setMessages(res.data.messages || [])
+      await api.put(`/api/messages/read/${id}`)
     } catch (error) {
       console.error('Error fetching messages:', error)
     }
@@ -55,11 +97,24 @@ export default function Messages() {
 
     setSending(true)
     try {
+      const studentId = String(selectedConversation.studentId)
+      console.log('Sending message to student ID:', studentId)
       const res = await api.post('/api/messages', {
-        student_id: selectedConversation.studentId,
+        student_id: studentId,
         text: newMessage,
         sender: 'admin'
       })
+      console.log('Message sent:', res.data)
+      // Update the conversation with new message
+      setConversations(prev => prev.map(conv => {
+        if (conv.studentId === selectedConversation.studentId) {
+          return {
+            ...conv,
+            messages: [...(conv.messages || []), res.data]
+          }
+        }
+        return conv
+      }))
       setMessages(prev => [...prev, res.data])
       setNewMessage('')
     } catch (error) {
@@ -105,7 +160,43 @@ export default function Messages() {
               <h2 className="font-semibold text-gray-800">Conversations</h2>
               <p className="text-sm text-gray-500">{conversations.length} student(s)</p>
             </div>
-            <div className="overflow-y-auto h-[calc(100%-70px)]">
+            
+            {/* Search Students */}
+            <div className="p-3 border-b border-gray-200">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value)
+                    searchStudents(e.target.value)
+                  }}
+                  placeholder="Search student to chat..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                />
+                {searching && (
+                  <div className="absolute right-3 top-2">
+                    <div className="animate-spin h-4 w-4 border-2 border-kenyan-blue border-t-transparent rounded-full"></div>
+                  </div>
+                )}
+              </div>
+              {searchResults.length > 0 && (
+                <div className="mt-2 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                  {searchResults.map(student => (
+                    <button
+                      key={student.id}
+                      onClick={() => startConversation(student)}
+                      className="w-full p-2 text-left hover:bg-blue-50 border-b border-gray-100 last:border-b-0"
+                    >
+                      <p className="font-medium text-sm text-gray-800">{student.full_name}</p>
+                      <p className="text-xs text-gray-500">{student.admission_no}</p>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            <div className="overflow-y-auto h-[calc(100%-140px)]">
               {conversations.length === 0 ? (
                 <div className="p-4 text-center text-gray-500">
                   No conversations yet
