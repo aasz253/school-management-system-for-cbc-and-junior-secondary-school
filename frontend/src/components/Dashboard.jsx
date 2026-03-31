@@ -58,7 +58,7 @@ export default function Dashboard() {
               <img src={schoolInfo.badge} alt="School Badge" className="w-24 h-24 rounded-full border-4 border-white/30 object-cover" />
             )}
             <div className="flex-1 text-center md:text-left">
-              <h1 className="text-3xl font-bold">CBC Smart School</h1>
+              <h1 className="text-3xl font-bold">Smart School Academy</h1>
               {schoolInfo.motto && <p className="text-blue-200 mt-1 italic">"{schoolInfo.motto}"</p>}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">

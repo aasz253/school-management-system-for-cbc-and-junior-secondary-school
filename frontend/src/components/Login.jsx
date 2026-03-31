@@ -167,7 +167,7 @@ export default function Login({ onLogin }) {
 
         <footer className="bg-gray-50 border-t border-gray-200 py-3 text-center">
           <p className="text-sm text-gray-500">
-            &copy; {new Date().getFullYear()} SIFUNA CODEX COMPANY
+            &copy; 2026 SIFUNA CODEX - All Rights Reserved
           </p>
         </footer>
       </div>

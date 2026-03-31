@@ -267,10 +267,7 @@ export default function StudentLogin({ onLogin }) {
       <footer className="relative z-10 bg-black/60 backdrop-blur-sm text-white py-4 sm:py-5">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <p className="text-sm sm:text-base mb-2">
-            &copy; {new Date().getFullYear()} Masinde Muliro University of Science and Technology. All Rights Reserved.
-          </p>
-          <p className="text-sm text-gray-300">
-            Contact: <a href="mailto:info@mmust.ac.ke" className="text-blue-300 hover:text-white">info@mmust.ac.ke</a> | Tel: +254 57 2505222
+            &copy; 2026 SIFUNA CODEX - All Rights Reserved
           </p>
         </div>
       </footer>

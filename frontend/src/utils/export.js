@@ -13,7 +13,7 @@ export function exportToPDF(students) {
   
   doc.setFontSize(20)
   doc.setTextColor(0, 51, 102)
-  doc.text('CBC Smart School', 105, 20, { align: 'center' })
+  doc.text('Smart School Academy', 105, 20, { align: 'center' })
   
   doc.setFontSize(14)
   doc.setTextColor(100)
@@ -88,7 +88,7 @@ export function exportToKEMIS(students, format) {
   }))
   
   const metadata = {
-    school_name: 'CBC Smart School',
+    school_name: 'Smart School Academy',
     export_date: `${formattedDate} at ${formattedTime}`,
     total_students: kemisData.length,
     kemis_version: '1.0',

@@ -18,7 +18,7 @@ export default function Layout({ children, onLogout }) {
 
         <footer className="bg-white border-t border-gray-200 py-4 px-6 text-center">
           <p className="text-sm text-gray-600">
-            &copy; {new Date().getFullYear()} SIFUNA CODEX COMPANY
+            &copy; 2026 SIFUNA CODEX - All Rights Reserved
           </p>
         </footer>
       </div>

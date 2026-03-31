@@ -235,7 +235,7 @@ export default function Academic() {
     
     doc.setFontSize(16)
     doc.setTextColor(0, 51, 102)
-    doc.text(schoolInfo.motto ? 'CBC Smart School' : 'School', 148, 12, { align: 'center' })
+    doc.text(schoolInfo.motto ? 'Smart School Academy' : 'School', 148, 12, { align: 'center' })
     
     doc.setFontSize(12)
     doc.setTextColor(50)

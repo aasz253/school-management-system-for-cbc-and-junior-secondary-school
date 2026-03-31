@@ -227,7 +227,7 @@ export default function StudentPortal({ student, onLogout }) {
 
       doc.setFontSize(18)
       doc.setTextColor(0, 51, 102)
-      doc.text(schoolInfo.motto ? 'CBC Smart School' : 'School', 105, 15, { align: 'center' })
+      doc.text(schoolInfo.motto ? 'Smart School Academy' : 'School', 105, 15, { align: 'center' })
       doc.setFontSize(14)
       doc.setTextColor(50)
       doc.text('Student Report Card', 105, 25, { align: 'center' })
@@ -972,7 +972,7 @@ export default function StudentPortal({ student, onLogout }) {
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 py-3 px-4 text-center">
         <p className="text-sm text-gray-500">
-          &copy; {new Date().getFullYear()} Masinde Muliro University of Science and Technology. All Rights Reserved.
+          &copy; 2026 SIFUNA CODEX - All Rights Reserved
         </p>
       </footer>
 

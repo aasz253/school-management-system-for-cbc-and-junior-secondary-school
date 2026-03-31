@@ -46,7 +46,7 @@ export default function ClassFeesModal({ onClose }) {
     
     doc.setFontSize(18)
     doc.setTextColor(0, 51, 102)
-    doc.text(schoolInfo.motto ? 'CBC Smart School' : 'School', 105, 15, { align: 'center' })
+    doc.text(schoolInfo.motto ? 'Smart School Academy' : 'School', 105, 15, { align: 'center' })
     
     doc.setFontSize(14)
     doc.setTextColor(50)
