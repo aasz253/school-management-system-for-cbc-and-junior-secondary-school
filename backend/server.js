@@ -45,15 +45,23 @@ app.post('/api/auth/student-login', async (req, res) => {
     return res.status(401).json({ success: false, message: 'Invalid password' });
   }
   
+  // Return complete student info for portal
   res.json({ 
     success: true, 
     token: 'student-token-' + student._id,
     user: { 
-      id: student._id,
+      id: student._id.toString(),
+      admission_no: student.admission_no,
       username: student.admission_no,
       role: 'student',
-      full_name: student.full_name,
-      grade: student.grade
+      full_name: student.full_name || 'Student',
+      grade: student.grade || 'Grade 1',
+      gender: student.gender || '',
+      date_of_birth: student.date_of_birth || '',
+      guardian_name: student.guardian_name || '',
+      guardian_contact: student.guardian_contact || '',
+      section: student.section || 'A',
+      fee_paid: student.fee_paid || 0
     } 
   });
 });
@@ -480,13 +488,28 @@ app.get('/api/student/portal/:id', async (req, res) => {
   const { ObjectId } = require('mongodb');
   const studentId = req.params.id;
   
-  const student = await findOne('students', { _id: new ObjectId(studentId) });
+  console.log('Portal API - studentId:', studentId);
+  
+  // Validate if it's a valid ObjectId format
+  let validId;
+  try {
+    validId = new ObjectId(studentId);
+  } catch (e) {
+    console.log('Invalid ObjectId format:', studentId);
+    return res.status(400).json({ message: 'Invalid student ID format' });
+  }
+  
+  const student = await findOne('students', { _id: validId });
+  console.log('Student found:', student ? 'yes' : 'no', student ? student.full_name : '');
+  console.log('Student fee_paid from DB:', student?.fee_paid);
+  console.log('Student full data:', JSON.stringify(student));
+  
   if (!student) {
     return res.status(404).json({ message: 'Student not found' });
   }
   
   const scores = await aggregate('scores', [
-    { $match: { student_id: new ObjectId(studentId) } },
+    { $match: { student_id: validId } },
     { $lookup: { from: 'students', localField: 'student_id', foreignField: '_id', as: 'student' } },
     { $unwind: '$student' },
     { $sort: { year: -1, term: -1 } }
@@ -569,8 +592,13 @@ app.get('/api/student/portal/:id', async (req, res) => {
   else if (average < 40) performance = 'Needs Improvement';
   
   const formattedStudent = { ...student, id: student._id, _id: undefined };
+  
+  console.log('Sending response - student:', formattedStudent);
+  console.log('Sending response - fee_paid:', formattedStudent.fee_paid);
+  
   res.json({
     student: formattedStudent,
+    total_fee: 5000,
     scores: studentScoresByTerm,
     terms,
     totalScore,
