@@ -76,8 +76,11 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Student routes */}
         <Route path="/" element={
-          studentUser ? <Navigate to="/student-portal" /> : <StudentLogin onLogin={handleStudentLogin} />
+          isAuthenticated ? <Navigate to="/dashboard" /> : (
+            studentUser ? <Navigate to="/student-portal" /> : <StudentLogin onLogin={handleStudentLogin} />
+          )
         } />
         <Route path="/student-login" element={
           studentUser ? <Navigate to="/student-portal" /> : <StudentLogin onLogin={handleStudentLogin} />
@@ -129,7 +132,7 @@ function App() {
               <Navigate to="/dashboard" />
             )
           ) : (
-            <Navigate to="/login" />
+            studentUser ? <Navigate to="/student-portal" /> : <Navigate to="/login" />
           )
         } />
       </Routes>
