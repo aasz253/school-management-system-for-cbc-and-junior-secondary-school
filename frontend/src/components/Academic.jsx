@@ -88,7 +88,7 @@ export default function Academic() {
           const score = parseInt(scoresData[key]?.[student.id]) || 0
           if (score > 0) {
             const existing = existingScores.find(s => 
-              s.student_id === student.id && 
+              String(s.student_id) === String(student.id) && 
               s.subject === subject &&
               s.term === selectedTerm &&
               s.year === selectedYear
@@ -130,7 +130,7 @@ export default function Academic() {
             s.subject === subject && 
             s.term === selectedTerm && 
             s.year === selectedYear) {
-          newScoresData[key][s.student_id] = s.score
+          newScoresData[key][String(s.student_id)] = s.score
         }
       })
     })

@@ -89,10 +89,19 @@ export default function StudentPortal({ student, onLogout }) {
     if (!newMessage.trim()) return
     setSending(true)
     try {
-      const res = await api.post('/api/messages', { student_id: student.id, text: newMessage, sender: 'student' })
+      const studentId = String(student.id)
+      console.log('Student sending message with ID:', studentId)
+      const res = await api.post('/api/messages', { 
+        student_id: studentId, 
+        text: newMessage, 
+        sender: 'student' 
+      })
+      console.log('Message sent response:', res.data)
       setMessages(prev => [...prev, res.data])
       setNewMessage('')
-    } catch (error) { console.error('Error sending message:', error) }
+    } catch (error) { 
+      console.error('Error sending message:', error) 
+    }
     finally { setSending(false) }
   }
 
@@ -111,12 +120,20 @@ export default function StudentPortal({ student, onLogout }) {
       console.log('Portal response status:', res.status)
       console.log('Portal data response:', res.data)
       console.log('Portal data keys:', Object.keys(res.data))
+      console.log('Portal scores keys:', res.data.scores ? Object.keys(res.data.scores) : 'no scores')
       if (res.data.student) {
         console.log('Student data in response:', res.data.student)
         console.log('fee_paid in response:', res.data.student.fee_paid)
       }
+      console.log('Full API response:', JSON.stringify(res.data, null, 2))
       setPortalData(res.data)
-      if (res.data.terms?.length > 0) setSelectedTerm(res.data.terms[0])
+      // Set selected term if terms exist OR if scores exist
+      const terms = res.data.terms || []
+      const scoreKeys = res.data.scores ? Object.keys(res.data.scores) : []
+      console.log('Terms from API:', terms)
+      console.log('Score keys from API:', scoreKeys)
+      const allTerms = terms.length > 0 ? terms : scoreKeys
+      if (allTerms.length > 0) setSelectedTerm(allTerms[0])
     } catch (error) { 
       console.error('Error fetching portal data:', error)
       console.error('Error response:', error.response?.data)
@@ -371,8 +388,19 @@ export default function StudentPortal({ student, onLogout }) {
 
   // Get top 5 subjects for performance summary
   const getTopSubjects = () => {
-    if (!portalData?.scores?.[selectedTerm]?.subjects) return []
-    const subjectScores = Object.entries(portalData.scores[selectedTerm].subjects)
+    // Get available terms from portalData
+    const availableTerms = portalData?.terms || []
+    const scoreKeys = portalData?.scores ? Object.keys(portalData.scores) : []
+    const allTerms = availableTerms.length > 0 ? availableTerms : scoreKeys
+    
+    // Use selectedTerm or first available term
+    const termToUse = selectedTerm || (allTerms.length > 0 ? allTerms[0] : null)
+    
+    console.log('getTopSubjects - selectedTerm:', selectedTerm, 'termToUse:', termToUse, 'scores:', portalData?.scores)
+    
+    if (!termToUse || !portalData?.scores?.[termToUse]?.subjects) return []
+    
+    const subjectScores = Object.entries(portalData.scores[termToUse].subjects)
       .filter(([_, score]) => score > 0)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
@@ -855,9 +883,20 @@ export default function StudentPortal({ student, onLogout }) {
                       <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-3">
                         <span className="text-3xl">📊</span> My Results
                       </h2>
+                      <button 
+                        onClick={downloadPDF} 
+                        disabled={!portalData?.terms?.length}
+                        className="bg-gradient-to-r from-blue-700 to-blue-800 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 hover:from-blue-800 hover:to-blue-900 transition shadow-lg disabled:opacity-50"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Download PDF
+                      </button>
                     </div>
                     
-                    {portalData?.terms?.length > 0 ? (
+                    {/* Check both terms AND scores object */}
+                    {(portalData?.terms?.length > 0 || (portalData?.scores && Object.keys(portalData.scores).length > 0)) ? (
                       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                         <div className="mb-4">
                           <label className="text-sm font-medium text-gray-700">Select Term:</label>
@@ -866,7 +905,7 @@ export default function StudentPortal({ student, onLogout }) {
                             onChange={(e) => setSelectedTerm(e.target.value)} 
                             className="ml-2 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                           >
-                            {portalData.terms.map(term => <option key={term} value={term}>{term}</option>)}
+                            {(portalData.terms || Object.keys(portalData.scores || {})).map(term => <option key={term} value={term}>{term}</option>)}
                           </select>
                         </div>
                         
