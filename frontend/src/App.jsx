@@ -77,7 +77,9 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={
-          studentUser ? <Navigate to="/student-portal" /> : <StudentLogin onLogin={handleStudentLogin} />
+          studentUser ? <Navigate to="/student-portal" /> : 
+          isAuthenticated ? <Navigate to="/dashboard" /> : 
+          <StudentLogin onLogin={handleStudentLogin} />
         } />
         <Route path="/student-login" element={
           studentUser ? <Navigate to="/student-portal" /> : <StudentLogin onLogin={handleStudentLogin} />
