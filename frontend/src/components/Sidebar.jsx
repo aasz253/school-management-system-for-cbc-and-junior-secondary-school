@@ -27,8 +27,8 @@ export default function Sidebar({ isOpen, onClose }) {
               </svg>
             </div>
             <div>
-              <h1 className="font-bold text-lg">CBC Smart</h1>
-              <p className="text-xs text-blue-200">School System</p>
+              <h1 className="font-bold text-lg">CBC Smart School</h1>
+              <p className="text-xs text-blue-200">Management System</p>
             </div>
           </div>
         </div>

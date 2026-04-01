@@ -56,7 +56,7 @@ export default function WelcomePage({ onContinue }) {
                 </svg>
               </div>
             )}
-            <h1 className="text-3xl font-bold text-white">Welcome to Our School</h1>
+              <h1 className="text-3xl font-bold text-white">Welcome to CBC Smart School</h1>
             {schoolInfo.motto && (
               <p className="text-blue-200 mt-2 text-lg italic">"{schoolInfo.motto}"</p>
             )}
@@ -78,8 +78,8 @@ export default function WelcomePage({ onContinue }) {
               )}
               {schoolInfo.adminName && (
                 <div className="bg-gray-50 rounded-lg p-4 md:col-span-2">
-                  <p className="text-sm text-gray-500">School Administrator</p>
-                  <p className="font-semibold text-gray-800">{schoolInfo.adminName}</p>
+                  <p className="text-sm text-gray-500">School Admin</p>
+                  <p className="font-semibold text-gray-800">{schoolInfo.adminName || 'CBC Smart School'}</p>
                 </div>
               )}
             </div>
@@ -102,7 +102,7 @@ export default function WelcomePage({ onContinue }) {
 
           <footer className="bg-gray-50 border-t border-gray-200 py-3 text-center">
             <p className="text-sm text-gray-500">
-              &copy; {new Date().getFullYear()} SIFUNA CODEX COMPANY
+              &copy; {new Date().getFullYear()} CBC Smart School
             </p>
           </footer>
         </div>

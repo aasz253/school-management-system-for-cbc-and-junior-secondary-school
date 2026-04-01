@@ -14,9 +14,9 @@ export default function Navbar({ onMenuClick, onLogout }) {
         </button>
         
         <div className="hidden sm:block">
-          <h2 className="text-lg font-semibold text-gray-800">
-            CBC-Aligned School Management System (Kenya)
-          </h2>
+            <h2 className="text-lg font-semibold text-gray-800">
+              CBC Smart School Management System (Kenya)
+            </h2>
           <p className="text-sm text-gray-500">KEMIS Compliant • KNEC Ready</p>
         </div>
       </div>
