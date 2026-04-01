@@ -1,9 +1,15 @@
+require('dotenv').config();
 const { MongoClient } = require('mongodb');
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://school:WheAsDZo2ayJlvnZ@cluster0.vgqy6bk.mongodb.net/?appName=Cluster0&retryWrites=true&w=majority';
+const MONGO_URI = process.env.MONGO_URI;
 const DB_NAME = process.env.DB_NAME || 'school_management';
 
-console.log('MongoDB URI:', MONGO_URI ? 'Set' : 'Not set');
+if (!MONGO_URI) {
+  console.error('MONGO_URI is not set. Create backend/.env with your MongoDB connection string.');
+  process.exit(1);
+}
+
+console.log('MongoDB URI:', 'Set');
 
 let client = null;
 let db = null;
