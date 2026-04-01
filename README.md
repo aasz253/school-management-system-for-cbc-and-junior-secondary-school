@@ -14,7 +14,7 @@ A Competency-Based Curriculum (CBC) aligned School Management System for Kenyan 
 
 - **Frontend**: React + Vite + Tailwind CSS
 - **Backend**: Node.js + Express
-- **Database**: SQLite
+- **Database**: MongoDB (MongoDB Atlas)
 
 ## Quick Start
 
@@ -42,7 +42,7 @@ npm install
 ```bash
 npm start
 ```
-Server runs on http://localhost:3001
+Server runs on http://localhost:5000
 
 2. Start the frontend (from frontend folder):
 ```bash
@@ -62,7 +62,7 @@ schoolmngmntssytm/
 ├── backend/
 │   ├── package.json
 │   ├── server.js       # Express server with API routes
-│   └── database.js     # SQLite database setup
+│   └── database.js     # MongoDB database setup
 ├── frontend/
 │   ├── package.json
 │   ├── src/
