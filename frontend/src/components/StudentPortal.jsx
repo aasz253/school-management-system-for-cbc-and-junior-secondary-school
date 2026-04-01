@@ -54,6 +54,15 @@ export default function StudentPortal({ student, onLogout }) {
     fetchAssignments()
   }, [student.id, refreshKey, showChat])
 
+  // Auto-refresh messages every 5 seconds when chat is open
+  useEffect(() => {
+    if (!showChat) return
+    const interval = setInterval(() => {
+      fetchMessages()
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [showChat, student.id])
+
   const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
 
   const fetchMessages = async () => {
@@ -62,6 +71,13 @@ export default function StudentPortal({ student, onLogout }) {
       setMessages(res.data.messages || [])
     } catch (error) { console.error('Error fetching messages:', error) }
   }
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    if (showChat) {
+      setTimeout(scrollToBottom, 100)
+    }
+  }, [messages, showChat])
 
   const fetchNews = async () => {
     try {
@@ -322,7 +338,7 @@ export default function StudentPortal({ student, onLogout }) {
 
       doc.setFontSize(18)
       doc.setTextColor(0, 51, 102)
-      doc.text(schoolInfo.name || 'Masinde Muliro School', 105, 15, { align: 'center' })
+      doc.text(schoolInfo.name || 'CBC Smart School', 105, 15, { align: 'center' })
       doc.setFontSize(14)
       doc.setTextColor(50)
       doc.text('Class Timetable', 105, 25, { align: 'center' })

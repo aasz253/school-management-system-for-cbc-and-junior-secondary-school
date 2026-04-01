@@ -23,6 +23,15 @@ export default function Messages() {
     }
   }, [selectedConversation])
 
+  // Auto-refresh messages every 5 seconds when conversation is selected
+  useEffect(() => {
+    if (!selectedConversation) return
+    const interval = setInterval(() => {
+      fetchMessages(selectedConversation.studentId)
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [selectedConversation])
+
   useEffect(() => {
     scrollToBottom()
   }, [messages])
