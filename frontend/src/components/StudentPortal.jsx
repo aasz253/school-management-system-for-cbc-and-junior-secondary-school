@@ -314,7 +314,7 @@ export default function StudentPortal({ student, onLogout }) {
 
       doc.setFontSize(8)
       doc.setTextColor(150)
-      doc.text(`Generated: ${formattedDate} at ${formattedTime} - SIFUNA CODEX COMPANY`, 105, 285, { align: 'center' })
+      doc.text(`Generated: ${formattedDate} at ${formattedTime} - CBC Smart School`, 105, 285, { align: 'center' })
 
       const filename = `${portalData.student.admission_no}_${term}_${year}_Report.pdf`
       doc.save(filename)
