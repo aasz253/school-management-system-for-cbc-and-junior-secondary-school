@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import api from '../api'
 
-const grades = ['1', '2', '3', '4', '5', '6', '7', '8']
+const grades = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 const subjects = ['English', 'Kiswahili', 'Mathematics', 'Science', 'Social Studies', 'Religious Education', 'Creative Arts', 'Physical & Health Education', 'Agriculture', 'Life Skills']
 
 export default function Assignments() {
@@ -212,7 +212,7 @@ export default function Assignments() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
-                <input type="date" value={formData.due_date} onChange={(e) => setFormData({ ...formData, due_date: e.target.value })} className="input w-full" />
+                <input type="date" value={formData.due_date} onChange={(e) => setFormData({ ...formData, due_date: e.target.value })} className="input w-full" min="2020-01-01" max="2030-12-31" />
               </div>
             </div>
 

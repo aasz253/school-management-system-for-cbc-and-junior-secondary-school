@@ -238,6 +238,8 @@ export default function Sports() {
                   value={formData.event_date}
                   onChange={(e) => setFormData({ ...formData, event_date: e.target.value })}
                   className="input w-full"
+                  min="2020-01-01"
+                  max="2030-12-31"
                 />
               </div>
               <div>

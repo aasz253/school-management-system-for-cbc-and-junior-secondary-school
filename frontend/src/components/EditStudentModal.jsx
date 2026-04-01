@@ -108,6 +108,8 @@ export default function EditStudentModal({ student, onSubmit, onClose }) {
               value={formData.date_of_birth}
               onChange={handleChange}
               className="input"
+              min="2000-01-01"
+              max="2030-12-31"
             />
           </div>
 

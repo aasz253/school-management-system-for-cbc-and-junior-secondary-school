@@ -18,8 +18,8 @@ const subjects = [
 
 const terms = ['Term 1', 'Term 2', 'Term 3']
 const currentYear = new Date().getFullYear()
-const years = [currentYear, currentYear - 1]
-const grades = ['1', '2', '3', '4', '5', '6', '7', '8']
+const years = Array.from({ length: 10 }, (_, i) => currentYear + 5 - i)
+const grades = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 
 export default function Academic() {
   const [students, setStudents] = useState([])

@@ -988,7 +988,7 @@ export default function StudentPortal({ student, onLogout }) {
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 py-3 px-4 text-center">
         <p className="text-sm text-gray-500">
-          &copy; {new Date().getFullYear()} Masinde Muliro University of Science and Technology. All Rights Reserved.
+          &copy; {new Date().getFullYear()} CBC Smart School. All Rights Reserved.
         </p>
       </footer>
 
