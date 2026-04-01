@@ -1,4 +1,4 @@
-require('dotenv').config();
+try { require('dotenv').config(); } catch {}
 const { MongoClient } = require('mongodb');
 
 const MONGO_URI = process.env.MONGO_URI;
