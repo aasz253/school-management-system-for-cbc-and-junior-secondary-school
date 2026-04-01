@@ -128,20 +128,20 @@ export default function StudentLogin({ onLogin }) {
                 
                 {/* Banner */}
                 <path d="M25 75 Q50 85, 75 75" fill="none" stroke="#1e3a5f" strokeWidth="3"/>
-                <text x="50" y="82" textAnchor="middle" fontSize="6" fill="#1e3a5f" fontWeight="bold">MAGNUS NECTO MANCERIAM</text>
+                <text x="50" y="82" textAnchor="middle" fontSize="6" fill="#1e3a5f" fontWeight="bold">CBC SMART SCHOOL</text>
               </svg>
             </div>
             
-            {/* University Name */}
+            {/* School Name */}
             <div className="text-center sm:text-left">
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white leading-tight tracking-wide">
-                MASINDE MULIRO UNIVERSITY
+                CBC SMART SCHOOL SYSTEM
               </h1>
               <h2 className="text-base sm:text-lg md:text-xl font-semibold text-white/90 mt-1">
-                OF SCIENCE & TECHNOLOGY
+                KENYA
               </h2>
               <p className="text-blue-200 italic mt-2 text-sm sm:text-base">
-                Fountain of Knowledge
+                Competency-Based Curriculum Management System
               </p>
             </div>
           </div>
@@ -267,10 +267,10 @@ export default function StudentLogin({ onLogin }) {
       <footer className="relative z-10 bg-black/60 backdrop-blur-sm text-white py-4 sm:py-5">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <p className="text-sm sm:text-base mb-2">
-            &copy; {new Date().getFullYear()} Masinde Muliro University of Science and Technology. All Rights Reserved.
+            &copy; {new Date().getFullYear()} Sifuna Codex
           </p>
           <p className="text-sm text-gray-300">
-            Contact: <a href="mailto:info@mmust.ac.ke" className="text-blue-300 hover:text-white">info@mmust.ac.ke</a> | Tel: +254 57 2505222
+            CBC Smart School System Kenya - Competency-Based Curriculum Management
           </p>
         </div>
       </footer>

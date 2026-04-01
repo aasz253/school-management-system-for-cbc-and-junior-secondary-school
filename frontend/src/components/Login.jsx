@@ -58,10 +58,10 @@ export default function Login({ onLogin }) {
           </div>
           <div className="h-10 flex items-center justify-center overflow-hidden">
             <h1 className="text-2xl font-bold text-white animate-pulse">
-              SMART SCHOOL ACADEMY
+              CBC SMART SCHOOL SYSTEM KENYA
             </h1>
           </div>
-          <p className="text-blue-200 mt-2 text-sm">Kenyan Education Management System</p>
+          <p className="text-blue-200 mt-2 text-sm">Competency-Based Curriculum Management System</p>
         </div>
 
         {!showReset ? (
@@ -167,7 +167,7 @@ export default function Login({ onLogin }) {
 
         <footer className="bg-gray-50 border-t border-gray-200 py-3 text-center">
           <p className="text-sm text-gray-500">
-            &copy; {new Date().getFullYear()} SIFUNA CODEX COMPANY
+            &copy; {new Date().getFullYear()} Sifuna Codex
           </p>
         </footer>
       </div>
