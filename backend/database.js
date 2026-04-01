@@ -10,18 +10,22 @@ if (!MONGO_URI) {
 }
 
 console.log('MongoDB URI:', 'Set');
+console.log('DB Name:', DB_NAME);
+console.log('Connecting to MongoDB...');
 
 let client = null;
 let db = null;
 
 async function initializeDatabase() {
   client = new MongoClient(MONGO_URI, {
-    serverSelectionTimeoutMS: 10000,
-    connectTimeoutMS: 10000,
+    serverSelectionTimeoutMS: 30000,
+    connectTimeoutMS: 30000,
   });
   
   try {
+    console.log('Attempting MongoDB connection...');
     await client.connect();
+    console.log('MongoDB connected, initializing database:', DB_NAME);
     db = client.db(DB_NAME);
     
     await db.collection('students').createIndex({ admission_no: 1 }, { unique: true });
@@ -36,6 +40,7 @@ async function initializeDatabase() {
     return db;
   } catch (err) {
     console.error('MongoDB connection error:', err.message);
+    console.error('Full error:', JSON.stringify(err, null, 2));
     throw err;
   }
 }
